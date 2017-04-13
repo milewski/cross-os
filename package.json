@@ -1,0 +1,48 @@
+{
+  "name": "cross-os",
+  "version": "1.0.0",
+  "description": "Allow to add OS-specific scripts in your package.json!",
+  "main": "source/index.js",
+  "bin": "source/index.js",
+  "author": "Rafael @Milewski",
+  "license": "MIT",
+  "homepage": "https://github.com/Milewski/cross-os",
+  "keywords": [
+    "os-scripts",
+    "cross-script",
+    "cross-env-script",
+    "system-specific",
+    "windows",
+    "win32",
+    "darwin",
+    "os",
+    "specific",
+    "os-specific"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Milewski/cross-os"
+  },
+  "bugs": {
+    "url": "https://github.com/Milewski/cross-os/issues"
+  },
+  "files": [
+    "source/*.js",
+    "test"
+  ],
+  "dependencies": {
+  },
+  "scripts": {
+    "prepublish": "npm run build && npm test",
+    "build": "tsc",
+    "pretest": "npm run build",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.40",
+    "@types/node": "^7.0.12",
+    "expect.js": "^0.3.1",
+    "mocha": "^3.2.0",
+    "typescript": "^2.2.2"
+  }
+}

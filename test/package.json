@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "first": {
+      "win32": "echo hello from window",
+      "linux": "echo hello from linux",
+      "darwin": "echo hello from darwin"
+    },
+    "second": {},
+    "third": "echo 'it is working just fine'",
+    "fourth": "node ../source/index.js first"
+  }
+}
