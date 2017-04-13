@@ -24,7 +24,7 @@ Add scripts to your package.json like so:
   "fight": {
     "darwin": "echo 'i make the product that the artist chooses' && echo 'and the GUI that Melinda uses'",
     "win32": "echo 'fine, you wanna be like that, die then.'",
-    "linux": "echo 'i stomp on a mac and a PC too, i\'m a Linux bitch, i thought you both GNU",
+    "linux": "echo 'i stomp on a mac and a PC too, im a Linux bitch, i thought you both GNU",
   }
 }
 ```
