@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/cross-os.svg)](https://www.npmjs.com/package/cross-os)
 [![dependencies](https://david-dm.org/Milewski/cross-os.svg)](https://www.npmjs.com/package/cross-os)
 
-OS Specific npm scripts!, ideally for tasks that differs across Operating System platforms
+OS Specific npm scripts! Ideal for tasks that differs across Operating System Platforms
 
 ## Install
 
@@ -20,7 +20,7 @@ Add scripts to your package.json like so:
 
 ```json
 "scripts": {
-  "foo": "os-script fight",
+  "foo": "cross-os fight",
   "fight": {
     "darwin": "echo 'i make the product that the artist chooses' && echo 'and the GUI that Melinda uses'",
     "win32": "echo 'fine, you wanna be like that, die then.'",
