@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
-import * as path from "path";
-import { spawn } from "child_process";
+import * as path from 'path';
+import { exec, spawn } from 'child_process';
 
 /**
  * Grab package.json
  */
 const pipeline = new Promise(resolve => {
-    spawn('npm', ['prefix'])
-        .stdout.on('data', (root: Buffer) => {
+    exec('npm prefix').stdout.on('data', (root: Buffer) => {
         resolve(require(path.resolve(root.toString('utf8').trim(), 'package.json')))
     });
 }).then(config => {
