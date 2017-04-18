@@ -1,7 +1,7 @@
 {
   "scripts": {
     "first": {
-      "win32": "echo hello from window",
+      "win32": "echo hello from win32",
       "linux": "echo hello from linux",
       "darwin": "echo hello from darwin"
     },
