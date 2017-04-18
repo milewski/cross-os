@@ -4,9 +4,13 @@
   "description": "Allow to add OS-specific scripts in your package.json!",
   "main": "source/index.js",
   "bin": "source/index.js",
-  "author": "Rafael @Milewski",
+  "author": {
+    "name": "Rafael Milewski",
+    "email": "rafael.milewski@gmail.com",
+    "url": "https://github.com/milewski"
+  },
   "license": "MIT",
-  "homepage": "https://github.com/Milewski/cross-os",
+  "homepage": "https://github.com/milewski/cross-os",
   "keywords": [
     "os-scripts",
     "cross-script",
@@ -21,10 +25,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Milewski/cross-os"
+    "url": "https://github.com/milewski/cross-os"
   },
   "bugs": {
-    "url": "https://github.com/Milewski/cross-os/issues"
+    "url": "https://github.com/milewski/cross-os/issues"
   },
   "files": [
     "source/*.js",
