@@ -108,4 +108,22 @@ describe('Loader', () => {
 
     })
 
+    it('should not conflict with script containing the same name as its callee', done => {
+
+        const child = exec('npm run foo --silent')
+
+        let output = '';
+
+        child.stdout.on('data', (buffer: Buffer) => {
+            output += buffer.toString('utf-8')
+        })
+
+        child.on('exit', code => {
+            expect(output.trim()).to.match(/bar/)
+            expect(code).to.be(0)
+            done()
+        })
+
+    })
+
 })

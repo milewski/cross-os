@@ -9,7 +9,8 @@
     "third": "echo 'it is working just fine'",
     "fourth": "node ../source/index.js first",
     "sixth": "node ../source/index.js first",
-    "seventh": "node ../source/index.js fifth"
+    "seventh": "node ../source/index.js fifth",
+    "foo": "node ../source/index.js foo"
   },
   "cross-os": {
     "fifth": {
@@ -17,6 +18,11 @@
       "linux": "echo hello from cross-os linux",
       "darwin": "echo hello from cross-os darwin"
     },
-    "sixth": "echo i should not been seen"
+    "sixth": "echo i should not been seen",
+    "foo": {
+      "win32": "echo bar from win32",
+      "linux": "echo bar from linux",
+      "darwin": "echo bar from darwin"
+    }
   }
 }

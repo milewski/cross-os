@@ -18,7 +18,7 @@ const pipeline = new Promise(resolve => {
     let script = process.argv.pop(),
         property = 'scripts';
 
-    if (config[property] && !config[property][script]) {
+    if (!config[property][script] || typeof config[property][script] !== 'object') {
         property = 'cross-os'
     }
 
