@@ -20,11 +20,11 @@ Add scripts to your package.json like so:
 
 ```json
 "scripts": {
-  "foo": "cross-os fight",
-  "fight": {
-    "darwin": "echo 'i make the product that the artist chooses' && echo 'and the GUI that Melinda uses'",
-    "win32": "echo 'fine, you wanna be like that, die then.'",
-    "linux": "echo 'i stomp on a mac and a PC too, im a Linux bitch, i thought you both GNU",
+  "foo": "cross-os bar",
+  "bar": {
+    "darwin": "echo 'i will only run on Mac'",
+    "win32": "echo 'i will only run on Windows'",
+    "linux": "echo 'i will only run on Linux'"
   }
 }
 ```
@@ -33,6 +33,21 @@ And call it like:
 npm run foo
 ```
 
+Alternatively you can also specify scripts on its own section in your `package.json`
+
+```json
+"scripts": {
+  "foo": "cross-os bar"
+}
+"cross-os": {
+  "bar": {
+    "darwin": "echo 'i will only run on Mac'",
+    "win32": "echo 'i will only run on Windows'",
+    "linux": "echo 'i will only run on Linux'"
+  }
+}
+```
+
 ## License 
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2017 [Rafael Milewski](https://github.com/milewski)

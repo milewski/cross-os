@@ -15,10 +15,15 @@ const pipeline = new Promise(resolve => {
     /**
      * Check if the desired script exists
      */
-    let script = process.argv.pop();
+    let script = process.argv.pop(),
+        property = 'scripts';
+
+    if (config[property] && !config[property][script]) {
+        property = 'cross-os'
+    }
 
     try {
-        return Promise.resolve(config['scripts'][script][process.platform]);
+        return Promise.resolve(config[property][script][process.platform]);
     } catch (e) {
         throw script
     }
