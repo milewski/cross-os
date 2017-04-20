@@ -4,28 +4,29 @@ import * as expect from 'expect.js';
 
 process.chdir(__dirname);
 
-let cross = path.resolve(__dirname, '../source/index.js');
+const cross = path.resolve(__dirname, '../source/index.js');
+const { platform } = process
 
 describe('Loader', () => {
 
     it('should fail if it\'s invoked with an invalid script', () => {
 
         const stdout = execSync(`node ${cross} invalid`)
-        expect(stdout.toString()).to.match(/script: 'invalid' not found\./)
+        expect(stdout.toString()).to.match(new RegExp(`script: 'invalid' not found for the current platform: ${platform}`))
 
     })
 
     it('should run the correct script on the right OS', () => {
 
         const stdout = execSync(`node ${cross} first`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from ${process.platform}`))
+        expect(stdout.toString()).to.match(new RegExp(`hello from ${platform}`))
 
     })
 
     it('should fail silently if script for an specific OS is not found', () => {
 
         const stdout = execSync(`node ${cross} second`)
-        expect(stdout.toString()).to.be.empty();
+        expect(stdout.toString().trim()).to.match(new RegExp(`script: 'second' not found for the current platform: ${platform}`));
 
     })
 
@@ -58,7 +59,7 @@ describe('Loader', () => {
         })
 
         child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${process.platform}`))
+            expect(output.trim()).to.match(new RegExp(`hello from ${platform}`))
             expect(code).to.be(0)
             done()
         })
@@ -68,7 +69,7 @@ describe('Loader', () => {
     it('should run scripts defined in cross-os attributes', () => {
 
         const stdout = execSync(`node ${cross} fifth`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from cross-os ${process.platform}`))
+        expect(stdout.toString()).to.match(new RegExp(`hello from cross-os ${platform}`))
 
     })
 
@@ -83,7 +84,7 @@ describe('Loader', () => {
         })
 
         child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from cross-os ${process.platform}`))
+            expect(output.trim()).to.match(new RegExp(`hello from cross-os ${platform}`))
             expect(code).to.be(0)
             done()
         })
@@ -101,7 +102,7 @@ describe('Loader', () => {
         })
 
         child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${process.platform}`))
+            expect(output.trim()).to.match(new RegExp(`hello from ${platform}`))
             expect(code).to.be(0)
             done()
         })
