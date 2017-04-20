@@ -3,6 +3,8 @@
 import * as path from 'path';
 import { exec, spawn } from 'child_process';
 
+const { platform } = process;
+
 /**
  * Grab package.json
  */
@@ -23,19 +25,21 @@ const pipeline = new Promise(resolve => {
     }
 
     try {
-        return Promise.resolve(config[property][script][process.platform]);
+        return Promise.resolve({ command: config[property][script][platform], script })
     } catch (e) {
         throw script
     }
 
-}).then((command: string) => {
+}).then(({ command, script }) => {
 
     /**
      * Execute the script
      */
     if (command)
-        spawn(command, [], { stdio: 'inherit', shell: true })
+        return spawn(command, [], { stdio: 'inherit', shell: true })
+
+    throw script
 
 }).catch(error => {
-    console.log(`script: '${error}' not found.\n`)
+    console.log('\x1b[33m', `script: '${error}' not found for the current platform: ${platform}\n`, '\x1b[39m')
 })

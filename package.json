@@ -1,6 +1,6 @@
 {
   "name": "cross-os",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Allow to add OS-specific scripts in your package.json!",
   "main": "source/index.js",
   "bin": "source/index.js",
