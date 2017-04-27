@@ -10,7 +10,7 @@ OS Specific npm scripts! Ideal for tasks that differs across Operating System Pl
 ## Install
 
 ```bash
-$ npm install cross-os --save
+$ npm install cross-os --save-dev
 ```
 
 ## Usage
@@ -50,4 +50,4 @@ Alternatively you can also specify scripts on its own section in your `package.j
 
 ## License 
 
-[MIT](LICENSE) © 2017 [Rafael Milewski](https://github.com/milewski)
+[MIT](LICENSE) © [Rafael Milewski](https://github.com/milewski)
