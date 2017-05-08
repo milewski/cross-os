@@ -4,6 +4,7 @@
 [![npm version](https://badge.fury.io/js/cross-os.svg)](https://badge.fury.io/js/cross-os)
 [![npm downloads](https://img.shields.io/npm/dm/cross-os.svg)](https://www.npmjs.com/package/cross-os)
 [![dependencies](https://david-dm.org/milewski/cross-os.svg)](https://www.npmjs.com/package/cross-os)
+[![Greenkeeper badge](https://badges.greenkeeper.io/milewski/cross-os.svg)](https://greenkeeper.io/)
 
 OS Specific npm scripts! Ideal for tasks that differs across Operating System Platforms
 
