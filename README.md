@@ -6,7 +6,6 @@
 [![dependencies](https://david-dm.org/milewski/cross-os.svg)](https://www.npmjs.com/package/cross-os)
 [![Greenkeeper badge](https://badges.greenkeeper.io/milewski/cross-os.svg)](https://greenkeeper.io/)
 
-
 OS Specific npm scripts! Ideal for tasks that differs across Operating System Platforms
 
 ## Install
