@@ -1,6 +1,6 @@
 {
   "name": "cross-os",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Allow to add OS-specific scripts in your package.json!",
   "main": "source/index.js",
   "bin": "source/index.js",
@@ -42,10 +42,10 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/mocha": "^2.2.40",
-    "@types/node": "^8.0.3",
+    "@types/mocha": "^2.2.43",
+    "@types/node": "^8.0.28",
     "expect.js": "^0.3.1",
-    "mocha": "^3.2.0",
-    "typescript": "^2.2.2"
+    "mocha": "^3.5.3",
+    "typescript": "^2.5.2"
   }
 }
