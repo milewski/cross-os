@@ -127,4 +127,11 @@ describe('Loader', () => {
 
     })
 
+    it('should fail if child fails', done => {
+        const child = exec(`node ${cross} fail`)
+        child.on('exit', code => {
+            expect(code).to.be(1)
+            done()
+        })
+    })
 })

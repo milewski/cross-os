@@ -10,7 +10,12 @@
     "fourth": "node ../source/index.js first",
     "sixth": "node ../source/index.js first",
     "seventh": "node ../source/index.js fifth",
-    "foo": "node ../source/index.js foo"
+    "foo": "node ../source/index.js foo",
+    "fail": {
+      "win32": "node -e \"process.exit(1)\"",
+      "linux": "node -e \"process.exit(1)\"",
+      "darwin": "node -e \"process.exit(1)\""
+    }
   },
   "cross-os": {
     "fifth": {

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 import * as path from 'path';
-import { exec, spawn } from 'child_process';
+import { exec, spawn, ChildProcess } from 'child_process';
 
 const { platform } = process;
 
 /**
  * Grab package.json
  */
-const pipeline = new Promise(resolve => {
+const pipeline = new Promise<string>(resolve => {
     exec('npm prefix').stdout.on('data', (root: Buffer) => {
         resolve(require(path.resolve(root.toString('utf8').trim(), 'package.json')))
     });
-}).then(config => {
+}).then<{ command: string, script: string }>(config => {
 
     /**
      * Check if the desired script exists
@@ -30,13 +30,19 @@ const pipeline = new Promise(resolve => {
         throw script
     }
 
-}).then(({ command, script }) => {
+}).then<ChildProcess>(({ command, script }) => {
 
     /**
      * Execute the script
      */
-    if (command)
-        return spawn(command, [], { stdio: 'inherit', shell: true })
+    if (command) {
+        const proc = spawn(command, [], { stdio: 'inherit', shell: true })
+        /**
+         * Propagate child exit code
+         */
+        proc.on('exit', (code, signal) => process.exit(code))
+        return proc
+    }
 
     throw script
 
