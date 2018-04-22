@@ -6,14 +6,14 @@
       "darwin": "echo hello from darwin"
     },
     "first-with-params": {
-      "win32": "echo hello from win32, I have arguments: ",
-      "linux": "echo hello from linux, I have arguments: ",
-      "darwin": "echo hello from darwin, I have arguments: "
+      "win32": "echo hello from win32, I have arguments:",
+      "linux": "echo hello from linux, I have arguments:",
+      "darwin": "echo hello from darwin, I have arguments:"
     },
     "second": {},
     "second-with-params": {},
-    "third": "echo 'it is working just fine'",
-    "third-with-params": "echo 'it is working just fine' with arguments: ",
+    "third": "echo it is working just fine",
+    "third-with-params": "echo it is working just fine with arguments:",
     "fourth": "node ../source/index.js first",
     "fourth-with-params": "node ../source/index.js first-with-params",
     "sixth": "node ../source/index.js first",
@@ -40,21 +40,21 @@
       "darwin": "echo hello from cross-os darwin"
     },
     "fifth-with-params": {
-      "win32": "echo hello from cross-os win32, I have arguments: ",
-      "linux": "echo hello from cross-os linux, I have arguments: ",
-      "darwin": "echo hello from cross-os darwin, I have arguments: "
+      "win32": "echo hello from cross-os win32, I have arguments:",
+      "linux": "echo hello from cross-os linux, I have arguments:",
+      "darwin": "echo hello from cross-os darwin, I have arguments:"
     },
     "sixth": "echo i should not been seen",
-    "sixth-with-params": "echo i should not been seen and niether the following arguments: ",
+    "sixth-with-params": "echo i should not been seen and niether the following arguments:",
     "foo": {
       "win32": "echo bar from win32",
       "linux": "echo bar from linux",
       "darwin": "echo bar from darwin"
     },
     "foo-with-params": {
-      "win32": "echo bar from win32, I have arguments: ",
-      "linux": "echo bar from linux, I have arguments: ",
-      "darwin": "echo bar from darwin, I have arguments: "
+      "win32": "echo bar from win32, I have arguments:",
+      "linux": "echo bar from linux, I have arguments:",
+      "darwin": "echo bar from darwin, I have arguments:"
     }
   }
 }

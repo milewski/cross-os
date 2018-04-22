@@ -49,6 +49,28 @@ Alternatively you can also specify scripts on its own section in your `package.j
 }
 ```
 
+You also can pass args to the underlying script like this:
+
+```json
+"scripts": {
+  "foo": "cross-os bar -- arg1 arg2"
+}
+"cross-os": {
+  "bar": {
+    "darwin": "echo received arg: ",
+    "win32": "echo received arg: ",
+    "linux": "echo received arg: "
+  }
+}
+```
+
+or directly from the npm run script like this:
+
+```bash
+npm run foo -- arg1 arg2
+```
+
+
 ## License 
 
 [MIT](LICENSE) © [Rafael Milewski](https://github.com/milewski)
