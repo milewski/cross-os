@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import * as path from 'path';
-import { exec, spawn, ChildProcess } from 'child_process';
+import { ChildProcess, exec, spawn } from 'child_process'
+import * as path from 'path'
 
-const { platform } = process;
+const { platform } = process
 
 /**
  * Grab package.json
@@ -11,7 +11,7 @@ const { platform } = process;
 const pipeline = new Promise<string>(resolve => {
     exec('npm prefix').stdout.on('data', (root: Buffer) => {
         resolve(require(path.resolve(root.toString('utf8').trim(), 'package.json')))
-    });
+    })
 }).then<{ command: string, params: Array<string>, script: string }>(config => {
 
     /**
@@ -22,18 +22,23 @@ const pipeline = new Promise<string>(resolve => {
     let params = []
 
     if (process.argv.length > 3) {
-        script = process.argv[2]
+        script = process.argv[ 2 ]
         params = process.argv.slice(3, process.argv.length)
+
+        if (params.indexOf('--') === 0) {
+            params.shift()
+        }
+
     } else {
         script = process.argv.pop()
     }
 
-    if (!config[property][script] || typeof config[property][script] !== 'object') {
+    if (!config[ property ][ script ] || typeof config[ property ][ script ] !== 'object') {
         property = 'cross-os'
     }
 
     try {
-        return Promise.resolve({ command: config[property][script][platform], params, script })
+        return Promise.resolve({ command: config[ property ][ script ][ platform ], params, script })
     } catch (e) {
         throw script
     }

@@ -37,15 +37,14 @@
   "scripts": {
     "prepublish": "npm run build && npm test",
     "build": "tsc",
-    "pretest": "npm run build",
-    "test": "mocha --no-timeouts"
+    "test": "mocha --require ts-node/register test/**/*.ts --exit --no-timeouts"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/mocha": "^5.0.0",
-    "@types/node": "^9.6.0",
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^9.6.6",
     "expect.js": "^0.3.1",
-    "mocha": "^5.0.0",
-    "typescript": "^2.7.2"
+    "mocha": "^5.1.1",
+    "ts-node": "^6.0.0",
+    "typescript": "^2.8.3"
   }
 }
