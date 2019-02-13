@@ -40,7 +40,7 @@
     "test": "mocha --require ts-node/register test/**/*.ts --exit --no-timeouts"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.0",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^10.0.3",
     "expect.js": "^0.3.1",
     "mocha": "^5.1.1",
