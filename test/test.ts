@@ -80,7 +80,7 @@ describe('Loader', () => {
         })
 
         child.on('exit', code => {
-            expect(output.trim()).to.match(/it is working just fine with arguments: "First" "Second" "Third"/)
+            expect(output.trim()).to.match(/it is working just fine with arguments: First Second Third/)
             expect(code).to.be(0)
             done()
         })
