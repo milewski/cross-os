@@ -9,7 +9,7 @@ const { platform } = process
  * Grab package.json
  */
 const pipeline = new Promise<string>(resolve => {
-    exec('npm prefix').stdout.on('data', (root: Buffer) => {
+    exec('npm prefix --no-workspaces').stdout.on('data', (root: Buffer) => {
         resolve(require(path.resolve(root.toString('utf8').trim(), 'package.json')))
     })
 }).then<{ command: string, params: Array<string>, script: string }>(config => {
