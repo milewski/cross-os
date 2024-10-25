@@ -67,6 +67,27 @@ or directly from the npm run script like this:
 npm run foo -- arg1 arg2
 ```
 
+You can use the "*" wildcard to match all Unix platforms:
+
+```json
+"cross-os": {
+  "chmodux": {
+    "win32": "",
+    "*": "chmod u+x main.js"
+  }
+}
+```
+
+You can also use comma-separated values to match multiple platforms:
+
+```json
+"cross-os": {
+  "chmodux": {
+    "win32": "",
+    "darwin,freebsd,linux,sunos": "chmod u+x main.js"
+  }
+}
+```
 
 ## License 
 

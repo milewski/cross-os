@@ -261,4 +261,32 @@ describe('Loader', () => {
         })
     })
 
+    it('should run the correct script for wildcard "*" on Unix platforms', () => {
+        if (platform !== 'win32') {
+            const stdout = execSync(`node ${cross} first`)
+            expect(stdout.toString()).to.match(/hello from unix/)
+        }
+    })
+
+    it('should run the correct script for wildcard "*" on Unix platforms and pass parameters', () => {
+        if (platform !== 'win32') {
+            const stdout = execSync(`node ${cross} first-with-params -- First Second Third`)
+            expect(stdout.toString()).to.match(/hello from unix, I have arguments: First Second Third/)
+        }
+    })
+
+    it('should run the correct script for comma-separated values on Unix platforms', () => {
+        if (platform !== 'win32') {
+            const stdout = execSync(`node ${cross} foo`)
+            expect(stdout.toString()).to.match(/bar from unix/)
+        }
+    })
+
+    it('should run the correct script for comma-separated values on Unix platforms and pass parameters', () => {
+        if (platform !== 'win32') {
+            const stdout = execSync(`node ${cross} foo-with-params -- First Second Third`)
+            expect(stdout.toString()).to.match(/bar from unix, I have arguments: First Second Third/)
+        }
+    })
+
 })

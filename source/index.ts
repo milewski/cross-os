@@ -38,7 +38,23 @@ const pipeline = new Promise<string>(resolve => {
     }
 
     try {
-        return Promise.resolve({ command: config[ property ][ script ][ platform ], params, script })
+        let command = config[ property ][ script ][ platform ]
+
+        if (!command && platform !== 'win32') {
+            command = config[ property ][ script ]['*']
+        }
+
+        if (!command) {
+            const platforms = Object.keys(config[ property ][ script ])
+            for (const p of platforms) {
+                if (p.split(',').includes(platform)) {
+                    command = config[ property ][ script ][ p ]
+                    break
+                }
+            }
+        }
+
+        return Promise.resolve({ command, params, script })
     } catch (e) {
         throw script
     }
