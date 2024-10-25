@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main, ${GITHUB_REF##*/} ]
+    branches: [ main, add-unix-wildcard-and-multiple-platforms ]
   pull_request:
-    branches: [ main, ${GITHUB_REF##*/} ]
+    branches: [ main, add-unix-wildcard-and-multiple-platforms ]
 
 jobs:
   build:
