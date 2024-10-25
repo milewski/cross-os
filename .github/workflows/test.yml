@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ${GITHUB_REF##*/} ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, ${GITHUB_REF##*/} ]
 
 jobs:
   build:
