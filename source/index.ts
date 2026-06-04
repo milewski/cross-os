@@ -1,64 +1,85 @@
 #!/usr/bin/env node
 
-import { ChildProcess, exec, spawn } from 'child_process'
-import * as path from 'path'
+import { spawn } from 'child_process'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+type PlatformScripts = Partial<Record<NodeJS.Platform, string>>
+type PackageScript = string | PlatformScripts
+
+interface PackageConfig {
+    scripts?: Record<string, PackageScript>
+    'cross-os'?: Record<string, PackageScript>
+}
+
+interface ScriptRequest {
+    args: string[]
+    name: string
+}
 
 const { platform } = process
 
-/**
- * Grab package.json
- */
-const pipeline = new Promise<string>(resolve => {
-    exec('npm prefix --no-workspaces').stdout.on('data', (root: Buffer) => {
-        resolve(require(path.resolve(root.toString('utf8').trim(), 'package.json')))
-    })
-}).then<{ command: string, params: Array<string>, script: string }>(config => {
+function readPackageConfig(cwd = process.cwd()): PackageConfig {
+    const packagePath = resolve(cwd, 'package.json')
+    return JSON.parse(readFileSync(packagePath, 'utf8')) as PackageConfig
+}
 
-    /**
-     * Check if the desired script exists
-     */
+function parseScriptRequest(argv = process.argv): ScriptRequest {
+    const [ name = '', ...rawArgs ] = argv.slice(2)
+    const args = rawArgs[0] === '--' ? rawArgs.slice(1) : rawArgs
 
-    let script, property = 'scripts'
-    let params = []
+    return { args, name }
+}
 
-    if (process.argv.length > 3) {
-        script = process.argv[ 2 ]
-        params = process.argv.slice(3, process.argv.length)
+function resolvePlatformCommand(config: PackageConfig, scriptName: string): string | undefined {
+    const scriptEntry = config.scripts?.[scriptName]
 
-        if (params.indexOf('--') === 0) {
-            params.shift()
+    if (isPlatformScripts(scriptEntry)) {
+        return scriptEntry[platform]
+    }
+
+    const crossOsEntry = config['cross-os']?.[scriptName]
+
+    if (isPlatformScripts(crossOsEntry)) {
+        return crossOsEntry[platform]
+    }
+
+    return undefined
+}
+
+function isPlatformScripts(value: PackageScript | undefined): value is PlatformScripts {
+    return typeof value === 'object' && value !== null
+}
+
+function printMissingScript(scriptName: string): void {
+    console.error(`script: '${scriptName}' not found for the current platform: ${platform}`)
+}
+
+function run(): void {
+    const { args, name } = parseScriptRequest()
+    const command = resolvePlatformCommand(readPackageConfig(), name)
+
+    if (!command) {
+        printMissingScript(name)
+        process.exitCode = 1
+        return
+    }
+
+    const child = spawn(command, args, { shell: true, stdio: 'inherit' })
+
+    child.on('exit', (code, signal) => {
+        if (signal) {
+            process.kill(process.pid, signal)
+            return
         }
 
-    } else {
-        script = process.argv.pop()
-    }
+        process.exit(code ?? 1)
+    })
 
-    if (!config[ property ][ script ] || typeof config[ property ][ script ] !== 'object') {
-        property = 'cross-os'
-    }
+    child.on('error', error => {
+        console.error(error.message)
+        process.exit(1)
+    })
+}
 
-    try {
-        return Promise.resolve({ command: config[ property ][ script ][ platform ], params, script })
-    } catch (e) {
-        throw script
-    }
-
-}).then<ChildProcess>(({ command, params, script }) => {
-
-    /**
-     * Execute the script
-     */
-    if (command) {
-        const proc = spawn(command, params, { stdio: 'inherit', shell: true })
-        /**
-         * Propagate child exit code
-         */
-        proc.on('exit', (code, signal) => process.exit(code))
-        return proc
-    }
-
-    throw script
-
-}).catch(error => {
-    console.log('\x1b[33m', `script: '${error}' not found for the current platform: ${platform}\n`, '\x1b[39m')
-})
+run()
