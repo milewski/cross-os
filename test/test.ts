@@ -1,264 +1,172 @@
-import { exec, execSync } from 'child_process'
-import * as expect from 'expect.js'
-import * as path from 'path'
+import { execFile, execFileSync, spawnSync } from 'child_process'
+import { strict as assert } from 'assert'
+import { promisify } from 'util'
+import { resolve } from 'path'
 
 process.chdir(__dirname)
 
-const cross = path.resolve(__dirname, '../source/index.js')
+const execFileAsync = promisify(execFile)
+const cross = resolve(__dirname, '../source/index.js')
 const { platform } = process
+const test: (name: string, fn: () => void | Promise<void>) => void = require('node:test')
 
-describe('Loader', () => {
+function runCross(script: string, args: string[] = []) {
+    return spawnSync(process.execPath, [cross, script, ...args], {
+        cwd: __dirname,
+        encoding: 'utf8',
+    })
+}
 
-    it('should fail if it\'s invoked with an invalid script', () => {
+function assertOutputIncludes(output: string, expected: string): void {
+    assert.match(output.trim(), new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+}
 
-        const stdout = execSync(`node ${cross} invalid`)
-        expect(stdout.toString()).to.match(new RegExp(`script: 'invalid' not found for the current platform: ${platform}`))
+async function runNpmScript(script: string, args: string[] = []) {
+    return execFileAsync('npm', ['run', script, '--silent', ...args], {
+        cwd: __dirname,
+    })
+}
 
+test('fails with a clear error when invoked with an invalid script', () => {
+    const result = runCross('invalid')
+
+    assert.equal(result.status, 1)
+    assertOutputIncludes(result.stderr, `script: 'invalid' not found for the current platform: ${platform}`)
+})
+
+test('fails with a clear error when an invalid script receives parameters', () => {
+    const result = runCross('invalid', ['--', 'First', 'Second', 'Third'])
+
+    assert.equal(result.status, 1)
+    assertOutputIncludes(result.stderr, `script: 'invalid' not found for the current platform: ${platform}`)
+})
+
+test('runs the platform-specific package script', () => {
+    const result = runCross('first')
+
+    assert.equal(result.status, 0)
+    assertOutputIncludes(result.stdout, `hello from ${platform}`)
+})
+
+test('passes parameters to platform-specific package scripts', () => {
+    const result = runCross('first-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assert.equal(result.status, 0)
+    assertOutputIncludes(result.stdout, `hello from ${platform}, I have arguments: First Second Third`)
+})
+
+test('preserves a parameter containing spaces', () => {
+    const result = runCross('first-with-params', ['--', 'First Second', 'Third'])
+
+    assert.equal(result.status, 0)
+    assertOutputIncludes(result.stdout, `hello from ${platform}, I have arguments: First Second Third`)
+})
+
+test('fails when a script has no command for the current platform', () => {
+    const result = runCross('second')
+
+    assert.equal(result.status, 1)
+    assertOutputIncludes(result.stderr, `script: 'second' not found for the current platform: ${platform}`)
+})
+
+test('fails when a platformless script receives parameters', () => {
+    const result = runCross('second', ['--', 'First', 'Second', 'Third'])
+
+    assert.equal(result.status, 1)
+    assertOutputIncludes(result.stderr, `script: 'second' not found for the current platform: ${platform}`)
+})
+
+test('leaves regular npm scripts untouched', async () => {
+    const { stdout } = await runNpmScript('third')
+
+    assertOutputIncludes(stdout, 'it is working just fine')
+})
+
+test('leaves regular npm scripts untouched when they receive parameters', async () => {
+    const { stdout } = await runNpmScript('third-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assertOutputIncludes(stdout, 'it is working just fine with arguments: First Second Third')
+})
+
+test('runs platform scripts through an npm script', async () => {
+    const { stdout } = await runNpmScript('fourth')
+
+    assertOutputIncludes(stdout, `hello from ${platform}`)
+})
+
+test('passes parameters through an npm script to a platform script', async () => {
+    const { stdout } = await runNpmScript('fourth-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assertOutputIncludes(stdout, `hello from ${platform}, I have arguments: First Second Third`)
+})
+
+test('runs scripts defined in the cross-os package attribute', () => {
+    const result = runCross('fifth')
+
+    assert.equal(result.status, 0)
+    assertOutputIncludes(result.stdout, `hello from cross-os ${platform}`)
+})
+
+test('passes parameters to scripts defined in the cross-os package attribute', () => {
+    const result = runCross('fifth-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assert.equal(result.status, 0)
+    assertOutputIncludes(result.stdout, `hello from cross-os ${platform}, I have arguments: First Second Third`)
+})
+
+test('runs cross-os attribute scripts through npm scripts', async () => {
+    const { stdout } = await runNpmScript('seventh')
+
+    assertOutputIncludes(stdout, `hello from cross-os ${platform}`)
+})
+
+test('passes parameters to cross-os attribute scripts through npm scripts', async () => {
+    const { stdout } = await runNpmScript('seventh-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assertOutputIncludes(stdout, `hello from cross-os ${platform}, I have arguments: First Second Third`)
+})
+
+test('prefers scripts entries over cross-os entries with the same name', async () => {
+    const { stdout } = await runNpmScript('sixth')
+
+    assertOutputIncludes(stdout, `hello from ${platform}`)
+})
+
+test('prefers scripts entries over cross-os entries when passing parameters', async () => {
+    const { stdout } = await runNpmScript('sixth-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assertOutputIncludes(stdout, `hello from ${platform}, I have arguments: First Second Third`)
+})
+
+test('does not conflict with a script containing the same name as its callee', async () => {
+    const { stdout } = await runNpmScript('foo')
+
+    assertOutputIncludes(stdout, 'bar')
+})
+
+test('does not conflict with a same-name callee when passing parameters', async () => {
+    const { stdout } = await runNpmScript('foo-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assertOutputIncludes(stdout, `bar from ${platform}, I have arguments: First Second Third`)
+})
+
+test('propagates child process failures', () => {
+    const result = runCross('fail')
+
+    assert.equal(result.status, 1)
+})
+
+test('propagates child process failures when passing parameters', () => {
+    const result = runCross('fail-with-params', ['--', 'First', 'Second', 'Third'])
+
+    assert.equal(result.status, 1)
+})
+
+test('can be executed directly by node after compilation', () => {
+    const stdout = execFileSync(process.execPath, [cross, 'first'], {
+        cwd: __dirname,
+        encoding: 'utf8',
     })
 
-    it('should fail if it\'s invoked with an invalid script, invoking with parameters', () => {
-
-        const stdout = execSync(`node ${cross} invalid -- First Second Third`)
-        expect(stdout.toString()).to.match(new RegExp(`script: 'invalid' not found for the current platform: ${platform}`))
-
-    })
-
-    it('should run the correct script on the right OS', () => {
-
-        const stdout = execSync(`node ${cross} first`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from ${platform}`))
-
-    })
-
-    it('should run the correct script on the right OS and pass the parameters', () => {
-
-        const stdout = execSync(`node ${cross} first-with-params -- First Second Third`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from ${platform}, I have arguments: First Second Third`))
-
-    })
-
-    it('should fail silently if script for an specific OS is not found', () => {
-
-        const stdout = execSync(`node ${cross} second`)
-        expect(stdout.toString().trim()).to.match(new RegExp(`script: 'second' not found for the current platform: ${platform}`))
-
-    })
-
-    it('should fail silently if script for an specific OS is not found, invoked with parameters', () => {
-
-        const stdout = execSync(`node ${cross} second -- First Second Third`)
-        expect(stdout.toString().trim()).to.match(new RegExp(`script: 'second' not found for the current platform: ${platform}`))
-
-    })
-
-    it('should work with npm scripts directly', done => {
-
-        const child = exec('npm run third --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(/it is working just fine/)
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should work with npm scripts directly and pass parameters', done => {
-
-        const child = exec('npm run third-with-params First Second Third --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(/it is working just fine with arguments: First Second Third/)
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should work with npm script + cross-os directly', done => {
-
-        const child = exec('npm run fourth --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${platform}`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should work with npm script + cross-os directly and pass parameters', done => {
-
-        const child = exec('npm run fourth-with-params --silent -- First Second Third')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${platform}, I have arguments: First Second Third`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should run scripts defined in cross-os attributes', () => {
-
-        const stdout = execSync(`node ${cross} fifth`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from cross-os ${platform}`))
-
-    })
-
-    it('should run scripts defined in cross-os attributes and pass parameters', () => {
-
-        const stdout = execSync(`node ${cross} fifth-with-params -- First Second Third`)
-        expect(stdout.toString()).to.match(new RegExp(`hello from cross-os ${platform}, I have arguments: First Second Third`))
-
-    })
-
-    it('should run scripts defined in cross-os attributes (called from npm scripts)', done => {
-
-        const child = exec('npm run seventh --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from cross-os ${platform}`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should run scripts defined in cross-os attributes (called from npm scripts) and pass parameters', done => {
-
-        const child = exec('npm run seventh-with-params --silent -- First Second Third')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from cross-os ${platform}, I have arguments: First Second Third`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('scripts should have precedence over cross-os attribute', done => {
-
-        const child = exec('npm run sixth --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${platform}`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('scripts should have precedence over cross-os attribute and pass parameters', done => {
-
-        const child = exec('npm run sixth-with-params --silent -- First Second Third')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`hello from ${platform}, I have arguments: First Second Third`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should not conflict with script containing the same name as its callee', done => {
-
-        const child = exec('npm run foo --silent')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(/bar/)
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should not conflict with script containing the same name as its callee and pass parameters', done => {
-
-        const child = exec('npm run foo-with-params --silent -- First Second Third')
-
-        let output = ''
-
-        child.stdout.on('data', (buffer: Buffer) => {
-            output += buffer.toString('utf-8')
-        })
-
-        child.on('exit', code => {
-            expect(output.trim()).to.match(new RegExp(`bar from ${platform}, I have arguments: First Second Third`))
-            expect(code).to.be(0)
-            done()
-        })
-
-    })
-
-    it('should fail if child fails', done => {
-        const child = exec(`node ${cross} fail`)
-        child.on('exit', code => {
-            expect(code).to.be(1)
-            done()
-        })
-    })
-
-    it('should fail if child fails when passing parameters', done => {
-        const child = exec(`node ${cross} fail-with-params`)
-        child.on('exit', code => {
-            expect(code).to.be(1)
-            done()
-        })
-    })
-
+    assertOutputIncludes(stdout, `hello from ${platform}`)
 })

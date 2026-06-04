@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Check whether package version is already published
+        id: published-version
+        shell: bash
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} is already published; skipping npm publish."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "${PACKAGE_NAME}@${PACKAGE_VERSION} has not been published yet."
+          fi
+
+      - name: Publish to npm
+        if: steps.published-version.outputs.published == 'false'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
