@@ -40,7 +40,7 @@
     "test": "npm run build && node --test test/test.js"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.1",
     "typescript": "^6.0.3"
   }
 }
